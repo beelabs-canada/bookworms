@@ -63,29 +63,29 @@
             <tr>
               <td class="brdr-rght">{{ description }}</td>
               <td class="text-right brdr-rght">{{ quantity }}</td>
-              <td class="text-right brdr-rght"><{{ price }}</td>
-              <td class="text-right brdr-rght">{{ cost }}</td>
+              <td class="text-right brdr-rght money">{{ price }}</td>
+              <td class="text-right brdr-rght money">{{ cost }}</td>
             </tr>
             {{/items}}
             <tr class="line-top">
               <td></td>
               <td></td>
               <td class="text-right brdr-rght">Subtotal</td>
-              <td class="text-right brdr-rght">{{ subtotal }}</td>
+              <td class="text-right brdr-rght money">{{ subtotal }}</td>
             </tr>
             <tr>
               <td colspan="2">GST/HST: 822639274</td>  
               <td class="text-right brdr-rght">Tax</td>
-              <td class="text-right brdr-rght">{{ tax }}</td>
+              <td class="text-right brdr-rght money">{{ tax }}</td>
             </tr>
             <tr class="line-top line-bottom">
               <td colspan="3" class="brdr-rght">Total</td>
-              <td class="text-right brdr-rght">{{ total }}</td>
+              <td class="text-right brdr-rght money">{{ total }}</td>
             </tr>
           </tbody>
         </table>
 
-        <p class="top-push-md">Thank you for your business. It’s a pleasure to work with you</p>
+        <p class="top-push-md">Thank you for your business. It's a pleasure to work with you</p>
         <p>Sincerely yours,</p>
         <p>Mario Bonito</p>
       </div>

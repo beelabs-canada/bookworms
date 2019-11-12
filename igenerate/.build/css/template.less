@@ -41,7 +41,15 @@ dl.dl-horizontal {
 
   	th { text-align: center }
   }
-
+  .money { 
+    position:relative;
+    text-indent: 5px;
+    &:before {
+      position: absolute;
+      content: '$';
+      left: 0;
+    }
+  }
   .brdr-rght { border-right: 2px dotted #ddd; }
 
 }

@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Page Title -->
-    <title>{{ id }} - {{ timestamp.iso }} - Beelabs Invoice</title>
+    <title>BL-2341-201911-03 -  - Beelabs Invoice</title>
 
     <!-- Compressed CSS -->
     <link rel="stylesheet" href="css/bootstrap.3.4.1.css">
@@ -34,19 +34,19 @@
         </dl>
       </div>
       <div class="col-xs-9">
-        <p>Attention: {{ client.name }}</p>
+        <p>Attention: Jamie Blades</p>
         <address>
-          {{ client.company }}<br />
-          {{ client.streetaddress }}<br />
-          {{ client.city }},{{ client.province }} {{ client.postal }}<br />
+          Block Media<br />
+          7 Bayview Road<br />
+          Ottawa,ON <br />
         </address>
         <dl class="dl-horizontal">
           <dt>Date:</dt>
-          <dd>{{ timestamp.iso }}</dd>
+          <dd></dd>
           <dt>Project Title:</dt>
-          <dd>{{ title }}</dd>
+          <dd>WP-Gravity Forms Renewal</dd>
           <dt>Invoice Number:</dt>
-          <dd>{{ id }}</dd>
+          <dd>BL-2341-201911-03</dd>
         </dl>
         <!-- Table -->
         <table class="table" id="costing">
@@ -59,33 +59,31 @@
             </tr>
           </thead>
           <tbody>
-            {{#items}}
             <tr>
-              <td class="brdr-rght">{{ description }}</td>
-              <td class="text-right brdr-rght">{{ quantity }}</td>
-              <td class="text-right brdr-rght"><{{ price }}</td>
-              <td class="text-right brdr-rght">{{ cost }}</td>
+              <td class="brdr-rght">Gravity Forms Renewal</td>
+              <td class="text-right brdr-rght">1</td>
+              <td class="text-right brdr-rght money">125.87</td>
+              <td class="text-right brdr-rght money">125.87</td>
             </tr>
-            {{/items}}
             <tr class="line-top">
               <td></td>
               <td></td>
               <td class="text-right brdr-rght">Subtotal</td>
-              <td class="text-right brdr-rght">{{ subtotal }}</td>
+              <td class="text-right brdr-rght money">125.87</td>
             </tr>
             <tr>
               <td colspan="2">GST/HST: 822639274</td>  
               <td class="text-right brdr-rght">Tax</td>
-              <td class="text-right brdr-rght">{{ tax }}</td>
+              <td class="text-right brdr-rght money">16.36</td>
             </tr>
             <tr class="line-top line-bottom">
               <td colspan="3" class="brdr-rght">Total</td>
-              <td class="text-right brdr-rght">{{ total }}</td>
+              <td class="text-right brdr-rght money">142.23</td>
             </tr>
           </tbody>
         </table>
 
-        <p class="top-push-md">Thank you for your business. It’s a pleasure to work with you</p>
+        <p class="top-push-md">Thank you for your business. It's a pleasure to work with you</p>
         <p>Sincerely yours,</p>
         <p>Mario Bonito</p>
       </div>

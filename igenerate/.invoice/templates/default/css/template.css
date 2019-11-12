@@ -35,6 +35,15 @@ dl.dl-horizontal dd {
 #costing thead th {
   text-align: center;
 }
+#costing .money {
+  position: relative;
+  text-indent: 5px;
+}
+#costing .money:before {
+  position: absolute;
+  content: '$';
+  left: 0;
+}
 #costing .brdr-rght {
   border-right: 2px dotted #ddd;
 }

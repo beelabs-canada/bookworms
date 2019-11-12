@@ -1,10 +1,16 @@
 #!/usr/bin/env perl
 use v5.12;
+use strict;
 use warnings;
 
-use CGI;
+use lib '.';
+
+use cPanelUserConfig;
+
+use CGI qw(-utf8);
 use CGI::Carp;
 use Path::Tiny;
+use Time::Piece;
 
 use constant PEOL => "\n"; # an easier way to write perl end of line
 
@@ -23,15 +29,49 @@ if ( ! $path->sibling( '.'.$pid )->is_dir )
 # 		dependencies
 # ==================================================
 
-my ( $build,   ) = pollenate( $path->sibling( '.'.$pid ) );
+my ( $stache, $json, $build, $date, $vendor, $template, $lib ) = pollenate( $path->sibling( '.'.$pid ) );
 
+$template = ( $session->param('tmpl') ) 
+				? ennoble( $template, $session->param('tmpl') )
+				: $template->child('default');
 
-print "PID: " , $pid, PEOL;
-print "QUERY: limit -> ", scalar $session->param('limit'), PEOL;
+# debug - for now
+# $build = $path->sibling('.build');
 
+# lets copy contents of our template
+File::Copy::Recursive::dircopy( $template, $build );
 
+# my $dataset = process( $json->decode( debug( $path, 'client', 'block-media', '2019-11.json' ) ) );
 
+# lets calculate 
+my $dataset = $json->decode( scalar $session->param('POSTDATA') );
+# print PEOL,"------------------------------------------------",PEOL;
+# print scalar $session->param('POSTDATA');
+# print PEOL,"------------------------------------------------",PEOL;
 
+$build->child('index.html')->spew( 
+ 	$stache->render( 
+ 		$build->child('index.html')->slurp,
+ 		$dataset
+ 	)
+);
+
+my $filename = generate( $dataset->{'client'}->{'company'}, $date );
+# now lets generate the pdf
+my @args = (
+	$vendor->child('phantomjs')->stringify,
+	$vendor->child('rasterize.js')->stringify,
+	$build->child('index.html')->stringify,
+	$path->sibling('invoices', $filename )->stringify
+);
+
+system(@args) == 0
+        or croak "system @args failed: $?";
+
+print $session->header('application/json');
+print $json->encode( { 'status' => 200,'url' =>  join( '/', 'invoices', $filename ) } );
+
+exit(0);
 
 # ============================================
 # FUNCTIONS
@@ -53,7 +93,7 @@ sub stage
 	return ( $path, $pid, $session )
 }
 
-# @function - initialize
+# @function - pollenate
 # @param - none
 # @returns {array} - initial enviroment variables
 sub pollenate
@@ -63,20 +103,96 @@ sub pollenate
 	require File::Copy::Recursive;
 	require Mustache::Simple;
 
+
+	my $date = localtime;
 	my ( $base ) = @_;
-	my @paths = ( Path::Tiny::tempdir() );
+	my @enviro = ( Mustache::Simple->new(), JSON->new->utf8, Path::Tiny::tempdir(), $date );
 
-	push @paths, $base->child($_) for ('vendor', 'templates', 'lib' ); 
+	push @enviro, $base->child($_) for ('vendor', 'templates', 'lib' ); 
 
-	return @paths;
+	return @enviro;
 }
 
 
+# process - {description}
+# @param - {...}
+# @returns { .. }
+# ----------------------------------------------------
+sub process
+{
+	my ($data) = @_;
+	
+	$data->{'subtotal'} = 0;
+	
+	foreach my $item ( @{$data->{'items'}} )
+	{
+		$item->{'cost'} = sprintf "%.2f", ($item->{'quantity'} * $item->{'price'});
+		$data->{'subtotal'} += $item->{'cost'};
+	}
+	
+	$data->{'subtotal'} = sprintf "%.2f", $data->{'subtotal'};
+	$data->{'tax'} = sprintf "%.2f", ($data->{'subtotal'} * 0.13 );
+	$data->{'total'} = $data->{'subtotal'} + $data->{'tax'};
+
+	return $data;
+}
+
+# slugify - {description}
+# @param - {...}
+# @returns { .. }
+# ----------------------------------------------------
+sub slugify
+{
+	require Unicode::Normalize;
+
+	my ($input) = @_;
+
+    $input = Unicode::Normalize::NFKD($input);
+    $input =~ tr/\000-\177//cd;    
+    $input =~ s/[^\w\s-]//g;       
+    $input =~ s/^\s+|\s+$//g;      
+    $input = lc($input);
+    $input =~ s/[-\s]+/-/g;        
+
+    return $input;
+}
+
+sub generate
+{
+	my ( $company, $date ) = @_;
+	return join( '.', slugify( $dataset->{'client'}->{'company'} ), $date->dmy("."), 'invoice.pdf')
+}
+
+# ennoble - {description}
+# @param - {...}
+# @returns { .. }
+# ----------------------------------------------------
+sub ennoble
+{
+	my ( $dir, $notation ) = @_;
+	return $dir->child( split(/\./, $notation) );
+}
+
+# error - {description}
+# @param - {...}
+# @returns { .. }
+# ----------------------------------------------------
 sub error
 {
 	my ($session, $message) = @_;
+
 	croak $message;
 
 	$session->header(-status => 404);
 	exit(0);
+}
+
+# debug - {description}
+# @param - {...}
+# @returns { .. }
+# ----------------------------------------------------
+sub debug
+{
+	my ( $path, @data ) = @_;
+	return $path->sibling( @data )->slurp_utf8;
 }
