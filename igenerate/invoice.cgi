@@ -35,20 +35,22 @@ $template = ( $session->param('tmpl') )
 				? ennoble( $template, $session->param('tmpl') )
 				: $template->child('default');
 
-# debug - for now
-# $build = $path->sibling('.build');
-
 # lets copy contents of our template
 File::Copy::Recursive::dircopy( $template, $build );
 
-# my $dataset = process( $json->decode( debug( $path, 'client', 'block-media', '2019-11.json' ) ) );
-
 # lets calculate 
-my $dataset = $json->decode( scalar $session->param('POSTDATA') );
-# print PEOL,"------------------------------------------------",PEOL;
-# print scalar $session->param('POSTDATA');
-# print PEOL,"------------------------------------------------",PEOL;
+my $dataset = process( $json->decode( scalar $session->param('POSTDATA') ) );
 
+# DEBUG
+#----------------------------
+if ( $session->param('debug') )
+{
+	$build = $path->sibling('.build');
+	$dataset = process( $json->decode( debug( $path, 'client', 'block-media', '2019-11.json' ) ) )
+}
+
+# generate HTML
+#----------------------------
 $build->child('index.html')->spew( 
  	$stache->render( 
  		$build->child('index.html')->slurp,
@@ -56,10 +58,16 @@ $build->child('index.html')->spew(
  	)
 );
 
+# Generate filename
+#----------------------------
 my $filename = generate( $dataset->{'client'}->{'company'}, $date );
-# now lets generate the pdf
+
+
+# Generate PDF
+#----------------------------
 my @args = (
-	$vendor->child('phantomjs')->stringify,
+	# $vendor->child('phantomjs')->stringify,
+	path('~/bin/phantomjs')->absolute->stringify,
 	$vendor->child('rasterize.js')->stringify,
 	$build->child('index.html')->stringify,
 	$path->sibling('invoices', $filename )->stringify
@@ -68,8 +76,10 @@ my @args = (
 system(@args) == 0
         or croak "system @args failed: $?";
 
+# JSON respond with link
+#----------------------------
 print $session->header('application/json');
-print $json->encode( { 'status' => 200,'url' =>  join( '/', 'invoices', $filename ) } );
+print $json->encode( { 'status' => 200,'url' =>  join( '/', 'https:/', $ENV{'SERVER_NAME'}, 'invoices', $filename ) } );
 
 exit(0);
 
@@ -187,6 +197,12 @@ sub error
 	exit(0);
 }
 
+
+sub pdfify
+{
+	my( $path, $idx, @commands ) = @_;
+
+}
 # debug - {description}
 # @param - {...}
 # @returns { .. }
