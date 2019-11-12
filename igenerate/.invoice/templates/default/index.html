@@ -28,24 +28,26 @@
           <dt class="sr-only">E-mail</dt>
           <dd><strong>billing@beelabs.ca</strong></dd>
           <dt class="sr-only">Address</dt>
-          <dd class="top-push-sm">842 Maplewood Avenue, Ottawa, ON K2B 5V5</dd>
-          <dt class="top-push-sm">GST/HST:</dt>
-          <dd class="pull-right tweak">822639274</dd>
+          <dd class="top-push-sm">460 St. Laurent Blvd, suite 505, Ottawa, ON K1K 4Z2</dd>
+          <dt class="top-push-sm smaller">GST/HST:</dt>
+          <dd class="pull-right tweak smaller">822639274</dd>
         </dl>
       </div>
       <div class="col-xs-9">
         <p>Attention: {{ client.name }}</p>
         <address>
           {{ client.company }}<br />
+          {{#client.streetaddress }}
           {{ client.streetaddress }}<br />
-          {{ client.city }},{{ client.province }} {{ client.postal }}<br />
+          {{ client.city }}, {{ client.province }} {{ client.postalcode }}<br />
+          {{/client.streetaddress }}
         </address>
         <dl class="dl-horizontal">
-          <dt>Date:</dt>
+          <dt>Date:&nbsp;</dt>
           <dd>{{ timestamp.iso }}</dd>
-          <dt>Project Title:</dt>
+          <dt>Project Title:&nbsp;</dt>
           <dd>{{ title }}</dd>
-          <dt>Invoice Number:</dt>
+          <dt>Invoice Number:&nbsp;</dt>
           <dd>{{ id }}</dd>
         </dl>
         <!-- Table -->
@@ -73,11 +75,13 @@
               <td class="text-right brdr-rght">Subtotal</td>
               <td class="text-right brdr-rght money">{{ subtotal }}</td>
             </tr>
+            {{^notax }}
             <tr>
               <td colspan="2">GST/HST: 822639274</td>  
               <td class="text-right brdr-rght">Tax</td>
               <td class="text-right brdr-rght money">{{ tax }}</td>
             </tr>
+            {{/notax}}
             <tr class="line-top line-bottom">
               <td colspan="3" class="brdr-rght">Total</td>
               <td class="text-right brdr-rght money">{{ total }}</td>
@@ -85,7 +89,7 @@
           </tbody>
         </table>
 
-        <p class="top-push-md">Thank you for your business. It's a pleasure to work with you</p>
+        <p class="top-push-md">Thank you for your business. It's a pleasure to work with you.</p>
         <p>Sincerely yours,</p>
         <p>Mario Bonito</p>
       </div>

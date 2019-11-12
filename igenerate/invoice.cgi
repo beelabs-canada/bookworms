@@ -39,7 +39,7 @@ $template = ( $session->param('tmpl') )
 File::Copy::Recursive::dircopy( $template, $build );
 
 # lets calculate 
-my $dataset = process( $json->decode( scalar $session->param('POSTDATA') ) );
+my $dataset = process( $json->decode( scalar $session->param('POSTDATA') ), $date );
 
 # DEBUG
 #----------------------------
@@ -60,7 +60,7 @@ $build->child('index.html')->spew(
 
 # Generate filename
 #----------------------------
-my $filename = generate( $dataset->{'client'}->{'company'}, $date );
+my $filename = generate( $dataset, $date );
 
 
 # Generate PDF
@@ -130,7 +130,7 @@ sub pollenate
 # ----------------------------------------------------
 sub process
 {
-	my ($data) = @_;
+	my ($data, $date) = @_;
 	
 	$data->{'subtotal'} = 0;
 	
@@ -141,8 +141,15 @@ sub process
 	}
 	
 	$data->{'subtotal'} = sprintf "%.2f", $data->{'subtotal'};
-	$data->{'tax'} = sprintf "%.2f", ($data->{'subtotal'} * 0.13 );
-	$data->{'total'} = $data->{'subtotal'} + $data->{'tax'};
+	# lets check to make sure we calculate tax
+	unless ( $data->{'notax'} )
+	{
+		$data->{'tax'} = sprintf "%.2f", ($data->{'subtotal'} * 0.13 );
+	}
+
+	$data->{'total'} = sprintf "%.2f", ($data->{'subtotal'} + $data->{'tax'} );
+
+	$data->{'timestamp'}->{'iso'} = $date->ymd;
 
 	return $data;
 }
@@ -169,8 +176,8 @@ sub slugify
 
 sub generate
 {
-	my ( $company, $date ) = @_;
-	return join( '.', slugify( $dataset->{'client'}->{'company'} ), $date->dmy("."), 'invoice.pdf')
+	my ( $data, $date ) = @_;
+	return lc join( '.', slugify( $data->{'client'}->{'company'} ), $data->{'id'}, 'invoice.pdf')
 }
 
 # ennoble - {description}
