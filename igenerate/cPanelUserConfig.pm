@@ -1,4 +1,0 @@
-package cPanelUserConfig;
-
-
-1;
