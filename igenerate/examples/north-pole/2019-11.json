@@ -1,0 +1,9 @@
+{
+	"client": { "name": "Mr. Santa Claus", "company":"North Pole Inc.", "streetaddress":"7 ABC St.", "city": "North Pole", "province":"North Region", "postalcode": "H0H H0H" },
+	"title": "World GPS Repair",
+	"id": "NP-5555-55555-55",
+	"items": [
+		{ "description": "World GPS Repair", "quantity": "1", "price": "99.99" }
+	]
+
+}

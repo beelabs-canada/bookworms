@@ -1,9 +1,0 @@
-{
-	"client": { "name": "Jamie Blades", "company":"Block Media", "streetaddress":"7 Bayview Road", "city": "Ottawa", "province":"ON", "postalcode": "K1Y 3B5" },
-	"title": "WP-Gravity Forms Renewal",
-	"id": "BL-2341-201911-03",
-	"items": [
-		{ "description": "Gravity Forms Renewal", "quantity": "1", "price": "125.87" }
-	]
-
-}

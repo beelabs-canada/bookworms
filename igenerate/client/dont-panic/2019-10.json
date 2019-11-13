@@ -1,9 +1,0 @@
-{
-	"client": { "name": "Chauncey Widdup", "company":"Don't Panic", "streetaddress":"", "city": "", "province":"", "postalcode": "" },
-	"title": "Monthly Onsite Client Mainteance",
-	"id": "BLBS-MT-CL02-20191031",
-	"items": [
-		{ "description": "Monthly Onsite Client Mainteance", "quantity": "1", "price": "100.00" }
-	]
-
-}
