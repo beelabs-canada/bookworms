@@ -3,14 +3,13 @@ use v5.12;
 use strict;
 use warnings;
 
-use lib '.';
-
-use cPanelUserConfig;
-
 use CGI qw(-utf8);
 use CGI::Carp;
 use Path::Tiny;
 use Time::Piece;
+
+use lib '.';
+use cPanelUserConfig;
 
 use constant PEOL => "\n"; # an easier way to write perl end of line
 
@@ -29,7 +28,7 @@ if ( ! $path->sibling( '.'.$pid )->is_dir )
 # 		dependencies
 # ==================================================
 
-my ( $stache, $json, $build, $date, $vendor, $template, $lib ) = pollenate( $path->sibling( '.'.$pid ) );
+my ( $stache, $json, $build, $date, $phantomjs, $vendor, $template, $coffer ) = pollenate( $path->sibling( '.'.$pid ) );
 
 $template = ( $session->param('tmpl') ) 
 				? ennoble( $template, $session->param('tmpl') )
@@ -40,14 +39,6 @@ File::Copy::Recursive::dircopy( $template, $build );
 
 # lets calculate 
 my $dataset = process( $json->decode( scalar $session->param('POSTDATA') ), $date );
-
-# DEBUG
-#----------------------------
-if ( $session->param('debug') )
-{
-	$build = $path->sibling('.build');
-	$dataset = process( $json->decode( debug( $path, 'client', 'block-media', '2019-11.json' ) ) )
-}
 
 # generate HTML
 #----------------------------
@@ -62,15 +53,14 @@ $build->child('index.html')->spew(
 #----------------------------
 my $filename = generate( $dataset, $date );
 
-
 # Generate PDF
 #----------------------------
 my @args = (
 	# $vendor->child('phantomjs')->stringify,
-	path('~/bin/phantomjs')->absolute->stringify,
+	$phantomjs->stringify,
 	$vendor->child('rasterize.js')->stringify,
 	$build->child('index.html')->stringify,
-	$path->sibling('invoices', $filename )->stringify
+	$path->sibling('download', $filename )->stringify
 );
 
 system(@args) == 0
@@ -79,7 +69,7 @@ system(@args) == 0
 # JSON respond with link
 #----------------------------
 print $session->header('application/json');
-print $json->encode( { 'status' => 200,'url' =>  join( '/', 'https:/', $ENV{'SERVER_NAME'}, 'invoices', $filename ) } );
+print $json->encode( { 'status' => 200,'url' =>  join( '/', 'https:/', $ENV{'SERVER_NAME'}, 'download', $filename ) } );
 
 exit(0);
 
@@ -113,12 +103,11 @@ sub pollenate
 	require File::Copy::Recursive;
 	require Mustache::Simple;
 
-
 	my $date = localtime;
 	my ( $base ) = @_;
-	my @enviro = ( Mustache::Simple->new(), JSON->new->utf8, Path::Tiny::tempdir(), $date );
+	my @enviro = ( Mustache::Simple->new(), JSON->new->utf8, Path::Tiny::tempdir(), $date, path('~/bin/phantomjs')->absolute );
 
-	push @enviro, $base->child($_) for ('vendor', 'templates', 'lib' ); 
+	push @enviro, $base->child($_) for ( 'vendor', 'templates', 'coffer' ); 
 
 	return @enviro;
 }
@@ -204,18 +193,3 @@ sub error
 	exit(0);
 }
 
-
-sub pdfify
-{
-	my( $path, $idx, @commands ) = @_;
-
-}
-# debug - {description}
-# @param - {...}
-# @returns { .. }
-# ----------------------------------------------------
-sub debug
-{
-	my ( $path, @data ) = @_;
-	return $path->sibling( @data )->slurp_utf8;
-}
